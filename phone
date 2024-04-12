@@ -1,0 +1,114 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+from selenium.webdriver.support.select import Select
+
+# Скрипт для автоматического обновления телефонов грандстрим
+# Устанавливается поддержка 802.1.х, а также обновление прошивки через tftp
+# Перед любыми изменениями рекомендую изучить selenium через сайт https://selenium-python.readthedocs.io/
+
+# Тут вводить айпи адреса
+phone_ip_address = ["10.2.89.151"]
+# Логин пароль для входа
+login = "admin"
+passwd = "3nf85S!"
+identity = "phone"
+MD5passwd = "test"
+
+
+def automate_phone_settings():
+    # Тут не трогать, настройка дров для браузера
+    chrome_options = Options()
+    driver = webdriver.Chrome(options=chrome_options)
+
+    # Цикл по айпи адресам
+    for ip in phone_ip_address:
+
+        try:
+            # Переход по адресу
+            driver.get(f"http://{ip}")
+
+            # В данном этапе происходит поиск HTML элементов для взаимодействия
+            # Элементы страницы по классу
+            loginTextBox = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "gwt-TextBox")))
+            password = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "gwt-PasswordTextBox")))
+            submitButton = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "gwt-Button")))
+
+            # С элемента убираются данные, и вставляются другие (Логин и пароль)
+            loginTextBox.clear()
+            loginTextBox.send_keys(login)
+            password.clear()
+            password.send_keys(passwd)
+
+            # Пауза между этапами для загрузки страниц
+
+            time.sleep(1)
+
+            submitButton.click()
+
+            time.sleep(3)
+
+            # Переход на страницу для настройки 802.1.х
+
+            driver.get(f"http://{ip}/#page:network_advance")
+
+            time.sleep(3)
+
+            elementUpload = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//button[text()="Upload"]')))
+
+            elementUpload.click()
+            time.sleep(1)
+
+            elementButton = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, 'gwt-FileUpload')))
+
+            # Здесь нужно ввести путь к файлу pem
+
+            elementButton.send_keys(r'C:\Users\almaz\Downloads\radius.pem')
+
+            time.sleep(5)
+
+            elementUps = driver.find_elements(By.CLASS_NAME, "gwt-Button")
+            elementUps[7].click()
+
+            time.sleep(10)
+            x = driver.find_elements(By.CLASS_NAME, "closebtn")
+            x[1].click()
+            time.sleep(3)
+
+            SaveAndApply = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//button[text()="Save and Apply"]')))
+
+            SaveAndApply.click()
+
+            rebootButton = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, 'reboot')))
+
+            rebootButton.click()
+            time.sleep(3)
+
+            okButton = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, '//button[text()="OK"]')))
+            okButton.click()
+            time.sleep(3)
+
+            # Победа, для проверки нужно проверить терминал
+
+            print("Phone settings at" + ip + "updated successfully!")
+
+        except Exception as e:
+            print(ip + "An error occurred:", str(e))
+    # Закрываем окно браузера
+    driver.close()
+
+
+# Запуск скрипта, для выбора достаточно убрать комменты
+if name == "main":
+    automate_phone_settings()
