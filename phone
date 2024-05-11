@@ -15,7 +15,7 @@ from selenium.webdriver.support.select import Select
 phone_ip_address = ["10.2.89.151"]
 # Логин пароль для входа
 login = "admin"
-passwd = "3nf85S!"
+passwd = "ssssss"
 identity = "phone"
 MD5passwd = "test"
 
